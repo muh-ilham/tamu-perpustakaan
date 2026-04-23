@@ -1,0 +1,45 @@
+name: Deploy to Hosting
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  web-deploy:
+    name: 🎉 Deploying to Server
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v3
+
+    - name: 🛠️ Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+
+    - name: 📦 Install Dependencies (Composer)
+      run: composer install --no-ansi --no-dev --no-interaction --no-plugins --no-progress --no-scripts --optimize-autoloader
+
+    - name: 🧪 Generate Key (if needed)
+      run: php artisan key:generate --show
+
+    - name: 📦 Install Dependencies (NPM)
+      run: npm install
+
+    - name: 🏗️ Build Assets (Vite)
+      run: npm run build
+
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: /public_html/ # Sesuaikan folder hosting Anda
+        exclude: |
+          **/.git*
+          **/node_modules/**
+          **/tests/**
+          .env
+          database/database.sqlite
+          storage/app/public/visitors/*
