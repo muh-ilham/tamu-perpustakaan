@@ -24,6 +24,11 @@ Route::middleware('auth')->group(function () {
     // Settings Management
     Route::get('/admin/settings', 'App\Http\Controllers\SettingController@index')->name('admin.settings.index');
     Route::post('/admin/settings', 'App\Http\Controllers\SettingController@update')->name('admin.settings.update');
+
+    // Admin Users Management
+    Route::get('/admin/users', 'App\Http\Controllers\AdminUserController@index')->name('admin.users.index');
+    Route::post('/admin/users', 'App\Http\Controllers\AdminUserController@store')->name('admin.users.store');
+    Route::delete('/admin/users/{user}', 'App\Http\Controllers\AdminUserController@destroy')->name('admin.users.destroy');
 });
 
 require __DIR__.'/auth.php';
