@@ -29,29 +29,42 @@ require __DIR__.'/auth.php';
 
 // Temporary route for setup on cPanel without Terminal
 Route::get('/install', function () {
+    $results = [];
+    
     try {
-        // Generate App Key if not exists
-        \Illuminate\Support\Facades\Artisan::call('key:generate', ['--force' => true]);
+        // 1. Generate App Key if not exists
+        if (!config('app.key')) {
+            \Illuminate\Support\Facades\Artisan::call('key:generate', ['--force' => true]);
+            $results[] = 'Key Generated';
+        }
         
-        // Cache Configuration
+        // 2. Cache Configuration
         \Illuminate\Support\Facades\Artisan::call('config:clear');
         \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        $results[] = 'Cache Cleared';
 
-        // Migrate and seed
+        // 3. Migrate and seed
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $results[] = 'Database Migrated';
         
-        // Storage link
-        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        // 4. Storage link (often fails on shared hosting due to symlink/exec restrictions)
+        try {
+            \Illuminate\Support\Facades\Artisan::call('storage:link');
+            $results[] = 'Storage Linked';
+        } catch (\Exception $e) {
+            $results[] = 'Storage Link Failed (Manual creation might be needed): ' . $e->getMessage();
+        }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Database Migrated, Key Generated, and Storage Linked successfully!',
+            'steps' => $results,
             'details' => \Illuminate\Support\Facades\Artisan::output()
         ]);
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
-            'message' => $e->getMessage()
+            'message' => $e->getMessage(),
+            'completed_steps' => $results
         ], 500);
     }
 });
