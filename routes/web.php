@@ -51,16 +51,43 @@ Route::get('/install', function () {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         $results[] = 'Database Migrated and Seeded';
+
+        // 4. Fix Storage Link (Very important for images on live server)
+        if (file_exists(public_path('storage'))) {
+            @unlink(public_path('storage'));
+        }
+        
+        try {
+            \Illuminate\Support\Facades\Artisan::call('storage:link');
+            $results[] = 'Storage link created successfully';
+        } catch (\Exception $e) {
+            $results[] = 'Artisan storage:link failed, attempting manual symlink...';
+            $target = storage_path('app/public');
+            $shortcut = public_path('storage');
+            @symlink($target, $shortcut);
+            $results[] = 'Manual symlink attempt completed';
+        }
+
+        // 5. Final optimization
+        \Illuminate\Support\Facades\Artisan::call('config:cache');
+        \Illuminate\Support\Facades\Artisan::call('route:cache');
+        \Illuminate\Support\Facades\Artisan::call('view:cache');
         
         return response()->json([
             'status' => 'success',
+            'message' => 'Sistem berhasil diinstal dan dioptimasi!',
             'steps' => $results,
-            'details' => \Illuminate\Support\Facades\Artisan::output()
+            'details' => [
+                'app_url' => config('app.url'),
+                'storage_path_exists' => file_exists(storage_path('app/public')),
+                'public_storage_exists' => file_exists(public_path('storage')),
+                'artisan_output' => \Illuminate\Support\Facades\Artisan::output()
+            ]
         ]);
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
-            'message' => $e->getMessage(),
+            'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
             'completed_steps' => $results
         ], 500);
     }
