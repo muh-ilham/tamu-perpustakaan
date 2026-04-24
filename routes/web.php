@@ -55,10 +55,11 @@ Route::get('/install', function () {
         // 4. Virtual Storage Link Fallback (Since symlink() is disabled by host)
         $results[] = 'Host blocks symlink(). Virtual Storage Route activated.';
         
-        // 5. Final optimization
-        \Illuminate\Support\Facades\Artisan::call('config:cache');
-        \Illuminate\Support\Facades\Artisan::call('route:cache');
-        \Illuminate\Support\Facades\Artisan::call('view:cache');
+        // 5. Safe cleanup (Clear instead of Cache to avoid path issues)
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
         
         // 6. Fix Permissions (For image readability)
         @chmod(storage_path('app/public'), 0775);
