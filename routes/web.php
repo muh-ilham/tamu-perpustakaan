@@ -19,6 +19,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Admin Visitor Routes
     Route::get('/admin/visitors', [VisitorController::class, 'adminIndex'])->name('admin.visitors.index');
+
+    // Settings Routes
+    Route::get('/admin/settings', [App\Http\Controllers\SettingController::class, 'index'])->name('admin.settings.index');
+    Route::post('/admin/settings', [App\Http\Controllers\SettingController::class, 'update'])->name('admin.settings.update');
 });
 
 require __DIR__.'/auth.php';

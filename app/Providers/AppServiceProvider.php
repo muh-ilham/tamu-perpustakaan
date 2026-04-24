@@ -19,6 +19,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Share settings globally
+        \Illuminate\Support\Facades\View::composer('*', function ($view) {
+            try {
+                $settings = [
+                    'app_name' => \App\Models\Setting::get('app_name', 'Buku Tamu Perpustakaan'),
+                    'app_logo' => \App\Models\Setting::get('app_logo'),
+                ];
+                $view->with('global_settings', $settings);
+            } catch (\Exception $e) {
+                // Database or table might not exist yet during initial setup/migration
+            }
+        });
     }
 }

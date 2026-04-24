@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Buku Tamu Perpustakaan</title>
+    <title>{{ $global_settings['app_name'] }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -34,9 +34,12 @@
 </head>
 <body class="text-white p-4 md:p-8 flex items-center justify-center">
     <div class="max-w-6xl w-full">
-        <div class="text-center mb-10">
+        <div class="text-center mb-10 flex flex-col items-center">
+            @if($global_settings['app_logo'])
+                <img src="{{ asset('storage/' . $global_settings['app_logo']) }}" class="h-20 w-auto mb-6 drop-shadow-2xl">
+            @endif
             <h1 class="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400 mb-2">
-                Buku Tamu Perpustakaan
+                {{ $global_settings['app_name'] }}
             </h1>
             <p class="text-gray-400">Silakan isi data kunjungan Anda</p>
         </div>

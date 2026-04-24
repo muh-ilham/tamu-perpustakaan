@@ -6,8 +6,13 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        @if($global_settings['app_logo'])
+                            <img src="{{ asset('storage/' . $global_settings['app_logo']) }}" class="block h-9 w-auto">
+                        @else
+                            <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        @endif
                     </a>
+                    <span class="ml-4 font-black text-gray-800 dark:text-white hidden md:block">{{ $global_settings['app_name'] }}</span>
                 </div>
 
                 <!-- Navigation Links -->
@@ -17,6 +22,9 @@
                     </x-nav-link>
                     <x-nav-link :href="route('admin.visitors.index')" :active="request()->routeIs('admin.visitors.index')">
                         {{ __('Daftar Kunjungan') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.index')">
+                        {{ __('Pengaturan') }}
                     </x-nav-link>
                 </div>
             </div>
@@ -75,6 +83,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('admin.visitors.index')" :active="request()->routeIs('admin.visitors.index')">
                 {{ __('Daftar Kunjungan') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.index')">
+                {{ __('Pengaturan') }}
             </x-responsive-nav-link>
         </div>
 
