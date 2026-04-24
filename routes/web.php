@@ -52,25 +52,9 @@ Route::get('/install', function () {
         \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         $results[] = 'Database Migrated and Seeded';
 
-        // 4. Fix Storage Link (Shared Hosting Friendly)
-        $target = storage_path('app/public');
-        $shortcut = public_path('storage');
+        // 4. Virtual Storage Link Fallback (Since symlink() is disabled by host)
+        $results[] = 'Host blocks symlink(). Virtual Storage Route activated.';
         
-        if (file_exists($shortcut)) {
-            if (is_link($shortcut)) {
-                @unlink($shortcut);
-            } else {
-                // If it's a real directory, we might need to rename it or tell the user
-                @rename($shortcut, $shortcut . '_old_' . time());
-            }
-        }
-        
-        if (@symlink($target, $shortcut)) {
-            $results[] = 'Storage link created successfully via PHP symlink()';
-        } else {
-            $results[] = 'PHP symlink() failed. Please create it manually or contact support.';
-        }
-
         // 5. Final optimization
         \Illuminate\Support\Facades\Artisan::call('config:cache');
         \Illuminate\Support\Facades\Artisan::call('route:cache');
@@ -78,12 +62,11 @@ Route::get('/install', function () {
         
         return response()->json([
             'status' => 'success',
-            'message' => 'Sistem berhasil diinstal dan dioptimasi!',
+            'message' => 'Sistem berhasil diinstal! Foto akan dimuat via Virtual Route.',
             'steps' => $results,
             'details' => [
                 'app_url' => config('app.url'),
-                'storage_path_exists' => file_exists(storage_path('app/public')),
-                'public_storage_exists' => file_exists(public_path('storage')),
+                'storage_mode' => 'Virtual Route',
                 'artisan_output' => \Illuminate\Support\Facades\Artisan::output()
             ]
         ]);
@@ -95,3 +78,16 @@ Route::get('/install', function () {
         ], 500);
     }
 });
+
+// Virtual Storage Route for Restricted Hosting
+Route::get('/storage/{path}', function ($path) {
+    if (file_exists(public_path('storage/' . $path)) && !is_dir(public_path('storage/' . $path))) {
+        return response()->file(public_path('storage/' . $path));
+    }
+    
+    $fullPath = storage_path("app/public/$path");
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+    return response()->file($fullPath);
+})->where('path', '.*');
