@@ -39,6 +39,29 @@ class AdminUserController extends Controller
     }
 
     /**
+     * Update the specified admin in storage.
+     */
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,'.$user->id],
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Data admin berhasil diperbarui!');
+    }
+
+    /**
      * Remove the specified admin from storage.
      */
     public function destroy(User $user)

@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     // Admin Users Management
     Route::get('/admin/users', 'App\Http\Controllers\AdminUserController@index')->name('admin.users.index');
     Route::post('/admin/users', 'App\Http\Controllers\AdminUserController@store')->name('admin.users.store');
+    Route::put('/admin/users/{user}', 'App\Http\Controllers\AdminUserController@update')->name('admin.users.update');
     Route::delete('/admin/users/{user}', 'App\Http\Controllers\AdminUserController@destroy')->name('admin.users.destroy');
 });
 

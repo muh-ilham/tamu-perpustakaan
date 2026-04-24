@@ -5,7 +5,13 @@
         </h2>
     </x-slot>
 
-    <div class="py-12" x-data="{ showAddModal: false }">
+    <div class="py-12" x-data="{ 
+        showAddModal: false, 
+        showEditModal: false,
+        showPassAdd: false,
+        showPassEdit: false,
+        editUser: { id: '', name: '', email: '', action: '' }
+    }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
             
             <div class="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700">
@@ -36,6 +42,16 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                     {{ session('error') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="bg-rose-100 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400 px-6 py-4 rounded-2xl text-sm font-bold">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
             @endif
 
@@ -74,20 +90,36 @@
                                     {{ $user->created_at->translatedFormat('d M Y') }}
                                 </td>
                                 <td class="bg-gray-50/50 dark:bg-gray-900/30 rounded-r-[1.5rem] py-4 px-4 border-y border-r border-gray-100/50 dark:border-gray-700/50 text-right">
-                                    @if($user->id !== auth()->id())
-                                        <button type="button" @click="confirmDeleteUser('{{ $user->id }}', '{{ $user->name }}')"
-                                            class="bg-white dark:bg-gray-800 p-2 rounded-xl border border-gray-200 dark:border-gray-700 text-rose-500 hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-all shadow-sm">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <!-- Edit Button -->
+                                        <button type="button" @click="
+                                            editUser = { 
+                                                id: '{{ $user->id }}', 
+                                                name: '{{ $user->name }}', 
+                                                email: '{{ $user->email }}',
+                                                action: '{{ route('admin.users.update', $user->id) }}'
+                                            }; 
+                                            showEditModal = true;
+                                        " class="bg-white dark:bg-gray-800 p-2 rounded-xl border border-gray-200 dark:border-gray-700 text-amber-500 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all shadow-sm">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </button>
-                                        <form id="deleteUserForm-{{ $user->id }}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="hidden">
-                                            @csrf
-                                            @method('DELETE')
-                                        </form>
-                                    @else
-                                        <span class="text-[10px] text-gray-400 italic">Self Account</span>
-                                    @endif
+
+                                        @if($user->id !== auth()->id())
+                                            <!-- Delete Button -->
+                                            <button type="button" @click="confirmDeleteUser('{{ $user->id }}', '{{ $user->name }}')"
+                                                class="bg-white dark:bg-gray-800 p-2 rounded-xl border border-gray-200 dark:border-gray-700 text-rose-500 hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-all shadow-sm">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                            <form id="deleteUserForm-{{ $user->id }}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="hidden">
+                                                @csrf
+                                                @method('DELETE')
+                                            </form>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
@@ -134,20 +166,87 @@
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1 mb-1 block">Email Address</label>
                             <input type="email" name="email" required class="w-full bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 rounded-2xl px-5 py-4 text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
+                        <div class="space-y-4">
+                            <div class="relative">
                                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1 mb-1 block">Password</label>
-                                <input type="password" name="password" required class="w-full bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 rounded-2xl px-5 py-4 text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                                <input :type="showPassAdd ? 'text' : 'password'" name="password" required class="w-full bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 rounded-2xl px-5 py-4 text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all pr-12">
+                                <button type="button" @click="showPassAdd = !showPassAdd" class="absolute right-4 bottom-4 text-gray-400 hover:text-indigo-500 transition-colors">
+                                    <svg x-show="!showPassAdd" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    <svg x-show="showPassAdd" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.025 10.025 0 014.132-5.411m0 0L21 21m-2.102-2.102L12 12m4.839 4.839L12 12m4.839 4.839A9.99 9.99 0 0021.542 12c-1.274-4.057-5.064-7-9.542-7-1.274 0-2.405.235-3.441.659m4.792 4.792a3 3 0 11-4.243 4.243"/></svg>
+                                </button>
                             </div>
                             <div>
                                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1 mb-1 block">Konfirmasi</label>
-                                <input type="password" name="password_confirmation" required class="w-full bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 rounded-2xl px-5 py-4 text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                                <input :type="showPassAdd ? 'text' : 'password'" name="password_confirmation" required class="w-full bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 rounded-2xl px-5 py-4 text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
                             </div>
                         </div>
                         
                         <div class="pt-6">
                             <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-5 rounded-2xl font-black text-sm transition-all shadow-xl shadow-indigo-500/20 active:scale-[0.98]">
                                 Daftarkan Sekarang
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Admin Modal -->
+        <div x-show="showEditModal" 
+            class="fixed inset-0 z-[100] overflow-y-auto" 
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-4"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-4"
+            style="display: none;">
+            <div class="flex items-center justify-center min-h-screen px-4">
+                <div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm" @click="showEditModal = false"></div>
+
+                <div class="relative bg-white dark:bg-gray-800 rounded-[3rem] shadow-2xl w-full max-w-lg p-10 overflow-hidden">
+                    <div class="absolute top-6 right-6">
+                        <button @click="showEditModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl font-black text-gray-800 dark:text-white uppercase tracking-tight">Edit Data Admin</h3>
+                        <p class="text-xs text-gray-400 font-medium italic">Biarkan password kosong jika tidak ingin diubah</p>
+                    </div>
+
+                    <form :action="editUser.action" method="POST" class="space-y-6">
+                        @csrf
+                        @method('PUT')
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1 mb-1 block">Nama Lengkap</label>
+                            <input type="text" name="name" x-model="editUser.name" required class="w-full bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 rounded-2xl px-5 py-4 text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1 mb-1 block">Email Address</label>
+                            <input type="email" name="email" x-model="editUser.email" required class="w-full bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 rounded-2xl px-5 py-4 text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                        </div>
+                        <div class="space-y-4">
+                            <div class="relative">
+                                <label class="text-[10px] font-black text-amber-500/80 uppercase tracking-widest pl-1 mb-1 block">Password Baru (Opsional)</label>
+                                <input :type="showPassEdit ? 'text' : 'password'" name="password" class="w-full bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 rounded-2xl px-5 py-4 text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all pr-12">
+                                <button type="button" @click="showPassEdit = !showPassEdit" class="absolute right-4 bottom-4 text-gray-400 hover:text-indigo-500 transition-colors">
+                                    <svg x-show="!showPassEdit" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    <svg x-show="showPassEdit" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.025 10.025 0 014.132-5.411m0 0L21 21m-2.102-2.102L12 12m4.839 4.839L12 12m4.839 4.839A9.99 9.99 0 0021.542 12c-1.274-4.057-5.064-7-9.542-7-1.274 0-2.405.235-3.441.659m4.792 4.792a3 3 0 11-4.243 4.243"/></svg>
+                                </button>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1 mb-1 block">Konfirmasi Password Baru</label>
+                                <input :type="showPassEdit ? 'text' : 'password'" name="password_confirmation" class="w-full bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-700 rounded-2xl px-5 py-4 text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                            </div>
+                        </div>
+                        
+                        <div class="pt-6">
+                            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-5 rounded-2xl font-black text-sm transition-all shadow-xl shadow-amber-500/20 active:scale-[0.98]">
+                                Simpan Perubahan Data
                             </button>
                         </div>
                     </form>
