@@ -52,20 +52,23 @@ Route::get('/install', function () {
         \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         $results[] = 'Database Migrated and Seeded';
 
-        // 4. Fix Storage Link (Very important for images on live server)
-        if (file_exists(public_path('storage'))) {
-            @unlink(public_path('storage'));
+        // 4. Fix Storage Link (Shared Hosting Friendly)
+        $target = storage_path('app/public');
+        $shortcut = public_path('storage');
+        
+        if (file_exists($shortcut)) {
+            if (is_link($shortcut)) {
+                @unlink($shortcut);
+            } else {
+                // If it's a real directory, we might need to rename it or tell the user
+                @rename($shortcut, $shortcut . '_old_' . time());
+            }
         }
         
-        try {
-            \Illuminate\Support\Facades\Artisan::call('storage:link');
-            $results[] = 'Storage link created successfully';
-        } catch (\Exception $e) {
-            $results[] = 'Artisan storage:link failed, attempting manual symlink...';
-            $target = storage_path('app/public');
-            $shortcut = public_path('storage');
-            @symlink($target, $shortcut);
-            $results[] = 'Manual symlink attempt completed';
+        if (@symlink($target, $shortcut)) {
+            $results[] = 'Storage link created successfully via PHP symlink()';
+        } else {
+            $results[] = 'PHP symlink() failed. Please create it manually or contact support.';
         }
 
         // 5. Final optimization
