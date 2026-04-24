@@ -47,14 +47,6 @@ Route::get('/install', function () {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $results[] = 'Database Migrated';
         
-        // 4. Storage link (often fails on shared hosting due to symlink/exec restrictions)
-        try {
-            \Illuminate\Support\Facades\Artisan::call('storage:link');
-            $results[] = 'Storage Linked';
-        } catch (\Exception $e) {
-            $results[] = 'Storage Link Failed (Manual creation might be needed): ' . $e->getMessage();
-        }
-
         return response()->json([
             'status' => 'success',
             'steps' => $results,
