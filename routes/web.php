@@ -60,6 +60,10 @@ Route::get('/install', function () {
         \Illuminate\Support\Facades\Artisan::call('route:cache');
         \Illuminate\Support\Facades\Artisan::call('view:cache');
         
+        // 6. Fix Permissions (For image readability)
+        @chmod(storage_path('app/public'), 0775);
+        @chmod(storage_path('app/public/visitors'), 0775);
+        
         return response()->json([
             'status' => 'success',
             'message' => 'Sistem berhasil diinstal! Foto akan dimuat via Virtual Route.',
@@ -67,6 +71,7 @@ Route::get('/install', function () {
             'details' => [
                 'app_url' => config('app.url'),
                 'storage_mode' => 'Virtual Route',
+                'storage_readable' => is_readable(storage_path('app/public')),
                 'artisan_output' => \Illuminate\Support\Facades\Artisan::output()
             ]
         ]);
@@ -81,13 +86,23 @@ Route::get('/install', function () {
 
 // Virtual Storage Route for Restricted Hosting
 Route::get('/storage/{path}', function ($path) {
-    if (file_exists(public_path('storage/' . $path)) && !is_dir(public_path('storage/' . $path))) {
-        return response()->file(public_path('storage/' . $path));
+    // 1. Try to find in public/storage first (if it's a real file)
+    $publicPath = public_path('storage/' . $path);
+    if (file_exists($publicPath) && !is_dir($publicPath)) {
+        return response()->file($publicPath);
     }
     
-    $fullPath = storage_path("app/public/$path");
-    if (!file_exists($fullPath)) {
-        abort(404);
+    // 2. Try to find in storage/app/public
+    $storagePath = storage_path("app/public/$path");
+    if (file_exists($storagePath)) {
+        return response()->file($storagePath);
     }
-    return response()->file($fullPath);
+
+    // 3. Last resort: check storage/app
+    $altPath = storage_path("app/$path");
+    if (file_exists($altPath)) {
+        return response()->file($altPath);
+    }
+    
+    abort(404, "File not found at $storagePath");
 })->where('path', '.*');
