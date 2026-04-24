@@ -9,7 +9,11 @@ Route::get('/', [VisitorController::class, 'index'])->name('visitor.index');
 Route::post('/visitor', [VisitorController::class, 'store'])->name('visitor.store');
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $stats = [
+        'total' => \App\Models\Visitor::count(),
+        'today' => \App\Models\Visitor::whereDate('created_at', now()->toDateString())->count(),
+    ];
+    return view('dashboard', compact('stats'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {

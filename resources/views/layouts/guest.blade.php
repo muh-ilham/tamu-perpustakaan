@@ -15,28 +15,66 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <style>
             .login-gradient {
-                background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+                background: radial-gradient(circle at top left, #1e1b4b 0%, #0f172a 50%, #020617 100%);
+                position: relative;
+                overflow: hidden;
+            }
+            .login-gradient::before {
+                content: '';
+                position: absolute;
+                top: -10%;
+                left: -10%;
+                width: 40%;
+                height: 40%;
+                background: radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%);
+                filter: blur(50px);
+                z-index: 0;
+            }
+            .glass-card {
+                background: rgba(255, 255, 255, 0.03);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            @media (max-width: 640px) {
+                .glass-card {
+                    border: none;
+                    background: transparent;
+                    backdrop-filter: none;
+                }
             }
         </style>
     </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 login-gradient">
-            <div class="mb-4">
-                <a href="/">
-                    @if($global_settings['app_logo'])
-                        <img src="{{ asset('storage/' . $global_settings['app_logo']) }}" class="h-20 w-auto drop-shadow-2xl">
-                    @else
-                        <x-application-logo class="w-20 h-20 fill-current text-white" />
-                    @endif
-                </a>
-            </div>
-
-            <div class="w-full sm:max-w-md mt-6 px-10 py-10 bg-white dark:bg-gray-800 shadow-2xl overflow-hidden sm:rounded-[2.5rem] border border-white/10">
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Login Portal</h2>
-                    <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Akses Admin {{ $global_settings['app_name'] }}</p>
+    <body class="font-sans text-gray-900 antialiased selection:bg-indigo-500 selection:text-white">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center p-6 login-gradient">
+            <div class="relative z-10 w-full flex flex-col items-center">
+                <div class="mb-8 transform hover:scale-105 transition-transform duration-500">
+                    <a href="/" class="flex flex-col items-center gap-4">
+                        @if(isset($global_settings['app_logo']) && $global_settings['app_logo'])
+                            <img src="{{ asset('storage/' . $global_settings['app_logo']) }}" class="h-24 w-auto drop-shadow-[0_0_25px_rgba(79,70,229,0.5)]">
+                        @else
+                            <div class="p-4 bg-indigo-600 rounded-3xl shadow-2xl shadow-indigo-500/50">
+                                <x-application-logo class="w-16 h-16 fill-current text-white" />
+                            </div>
+                        @endif
+                    </a>
                 </div>
-                {{ $slot }}
+
+                <div class="w-full sm:max-w-md px-8 py-10 glass-card shadow-2xl overflow-hidden sm:rounded-[2.5rem] relative transition-all duration-500">
+                    <div class="text-center mb-10">
+                        <h2 class="text-3xl font-black text-white uppercase tracking-tight mb-2">Login Portal</h2>
+                        <div class="flex items-center justify-center gap-2">
+                            <span class="h-px w-8 bg-indigo-500/50"></span>
+                            <p class="text-[10px] text-indigo-400 font-black uppercase tracking-[0.2em]">Sistem Buku Tamu</p>
+                            <span class="h-px w-8 bg-indigo-500/50"></span>
+                        </div>
+                    </div>
+                    {{ $slot }}
+                </div>
+
+                <div class="mt-8 text-center sm:block hidden">
+                    <p class="text-xs text-gray-500 font-medium uppercase tracking-widest">&copy; {{ date('Y') }} {{ $global_settings['app_name'] ?? config('app.name') }}. All rights reserved.</p>
+                </div>
             </div>
         </div>
     </body>
