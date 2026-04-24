@@ -24,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
             try {
                 $settings = [
                     'app_name' => \App\Models\Setting::get('app_name', 'Buku Tamu Perpustakaan'),
+                    'app_subtitle' => \App\Models\Setting::get('app_subtitle', 'BUKU TAMU DIGITAL PERPUSTAKAAN'),
                     'app_logo' => \App\Models\Setting::get('app_logo'),
                 ];
                 $view->with('global_settings', $settings);

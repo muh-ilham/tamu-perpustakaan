@@ -23,13 +23,24 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <!-- App Name -->
-                            <div class="space-y-2">
-                                <label class="text-xs font-black text-gray-400 uppercase tracking-widest pl-1">Judul Aplikasi</label>
-                                <input type="text" name="app_name" value="{{ $settings['app_name'] }}" required
-                                    class="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all dark:text-white font-bold">
-                                @error('app_name')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                @enderror
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label class="text-xs font-black text-gray-400 uppercase tracking-widest pl-1">Judul Aplikasi</label>
+                                    <input type="text" name="app_name" value="{{ $settings['app_name'] }}" required
+                                        class="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all dark:text-white font-bold">
+                                    @error('app_name')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="text-xs font-black text-gray-400 uppercase tracking-widest pl-1">Subjudul Aplikasi</label>
+                                    <input type="text" name="app_subtitle" value="{{ $settings['app_subtitle'] }}"
+                                        class="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all dark:text-white font-bold">
+                                    @error('app_subtitle')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
 
                             <!-- Logo Upload -->

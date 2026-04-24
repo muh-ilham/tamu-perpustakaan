@@ -57,21 +57,23 @@
     </style>
 </head>
 <body class="text-white selection:bg-indigo-500 selection:text-white">
-    <div class="min-h-screen py-10 md:py-20 px-4 md:px-8 flex items-center justify-center">
+    <div class="min-h-screen py-10 md:py-16 px-4 md:px-8 flex items-center justify-center">
         <div class="max-w-6xl w-full relative z-10">
             <div class="text-center mb-12 flex flex-col items-center">
                 @if(isset($global_settings['app_logo']) && $global_settings['app_logo'])
-                    <div class="mb-8 transform hover:scale-105 transition-transform duration-500">
-                        <img src="{{ asset('storage/' . $global_settings['app_logo']) }}" class="h-24 w-auto drop-shadow-[0_0_25px_rgba(79,70,229,0.4)]">
+                    <div class="mb-6 transform hover:scale-105 transition-transform duration-500">
+                        <img src="{{ asset('storage/' . $global_settings['app_logo']) }}" class="h-28 md:h-36 w-auto drop-shadow-[0_0_20px_rgba(99,102,241,0.5)]">
                     </div>
                 @endif
-                <h1 class="text-4xl md:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-purple-400 mb-4 tracking-tight">
+                <h1 class="text-3xl md:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-100 to-indigo-400 mb-4 tracking-tight leading-tight">
                     {{ $global_settings['app_name'] }}
                 </h1>
-                <div class="flex items-center justify-center gap-3">
-                    <span class="h-px w-10 bg-indigo-500/50"></span>
-                    <p class="text-xs md:text-sm text-indigo-300 font-bold uppercase tracking-[0.3em]">Buku Tamu Digital Perpustakaan</p>
-                    <span class="h-px w-10 bg-indigo-500/50"></span>
+                <div class="flex items-center justify-center gap-3 w-full px-6 text-center">
+                    <span class="hidden md:block h-px w-12 bg-indigo-500/30"></span>
+                    <p class="text-[10px] md:text-xs text-indigo-300/80 font-black uppercase tracking-[0.4em] leading-relaxed">
+                        {{ $global_settings['app_subtitle'] ?? 'Buku Tamu Digital Perpustakaan' }}
+                    </p>
+                    <span class="hidden md:block h-px w-12 bg-indigo-500/30"></span>
                 </div>
             </div>
 
