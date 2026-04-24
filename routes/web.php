@@ -49,7 +49,8 @@ Route::get('/install', function () {
 
         // 3. Migrate and seed
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        $results[] = 'Database Migrated';
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        $results[] = 'Database Migrated and Seeded';
         
         return response()->json([
             'status' => 'success',
