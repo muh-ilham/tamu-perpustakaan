@@ -40,6 +40,7 @@ jobs:
           **/.git*
           **/node_modules/**
           **/tests/**
+          vendor/**
           .env
           database/database.sqlite
           storage/app/public/visitors/*
