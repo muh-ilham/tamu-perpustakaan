@@ -16,8 +16,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', 'App\Http\Controllers\ProfileController@update')->name('profile.update');
     Route::delete('/profile', 'App\Http\Controllers\ProfileController@destroy')->name('profile.destroy');
 
-    // Visitor Management - Nama dibetulkan menjadi admin.visitors.index
+    // Visitor Management
     Route::get('/admin/visitors', 'App\Http\Controllers\VisitorController@adminIndex')->name('admin.visitors.index');
+    Route::delete('/admin/visitors/{visitor}', 'App\Http\Controllers\VisitorController@destroy')->name('admin.visitors.destroy');
+    Route::delete('/admin/visitors-clear', 'App\Http\Controllers\VisitorController@destroyAll')->name('admin.visitors.destroyAll');
     
     // Settings Management
     Route::get('/admin/settings', 'App\Http\Controllers\SettingController@index')->name('admin.settings.index');

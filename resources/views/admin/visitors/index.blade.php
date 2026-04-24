@@ -4,10 +4,23 @@
             <h2 class="font-bold text-2xl text-gray-800 dark:text-white leading-tight">
                 {{ __('Insight Kunjungan') }}
             </h2>
-            <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border border-gray-200 dark:border-gray-700">
-                <a href="{{ route('admin.visitors.index', ['range' => '7']) }}" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all {{ $range == '7' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' }}">7 Hari</a>
-                <a href="{{ route('admin.visitors.index', ['range' => '30']) }}" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all {{ $range == '30' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' }}">30 Hari</a>
-                <a href="{{ route('admin.visitors.index', ['range' => '90']) }}" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all {{ $range == '90' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' }}">90 Hari</a>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <a href="{{ route('admin.visitors.index', ['range' => '7']) }}" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all {{ $range == '7' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' }}">7 Hari</a>
+                    <a href="{{ route('admin.visitors.index', ['range' => '30']) }}" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all {{ $range == '30' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' }}">30 Hari</a>
+                    <a href="{{ route('admin.visitors.index', ['range' => '90']) }}" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all {{ $range == '90' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600 dark:text-indigo-400' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' }}">90 Hari</a>
+                </div>
+                
+                <button type="button" onclick="confirmDeleteAll()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-800/50 hover:bg-rose-600 hover:text-white transition-all text-xs font-bold shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Hapus Semua
+                </button>
+                <form id="deleteAllForm" action="{{ route('admin.visitors.destroyAll') }}" method="POST" class="hidden">
+                    @csrf
+                    @method('DELETE')
+                </form>
             </div>
         </div>
     </x-slot>
@@ -149,15 +162,29 @@
                                         <td class="bg-gray-50/50 dark:bg-gray-900/30 py-4 px-4 border-y border-gray-100/50 dark:border-gray-700/50 text-xs text-gray-500 font-medium whitespace-nowrap">
                                             {{ $visitor->created_at->format('H:i') }} • {{ $visitor->created_at->format('d/m/y') }}
                                         </td>
-                                        <td class="bg-gray-50/50 dark:bg-gray-900/30 rounded-r-[1.5rem] py-4 px-4 border-y border-r border-gray-100/50 dark:border-gray-700/50 text-right">
-                                            <button @click="openDetail({{ json_encode($visitor) }})" 
-                                                class="bg-white dark:bg-gray-800 p-2 rounded-xl border border-gray-200 dark:border-gray-700 text-indigo-600 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all shadow-sm">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                            </button>
-                                        </td>
+                                         <td class="bg-gray-50/50 dark:bg-gray-900/30 rounded-r-[1.5rem] py-4 px-4 border-y border-r border-gray-100/50 dark:border-gray-700/50 text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <button @click="openDetail({{ json_encode($visitor) }})" 
+                                                    class="bg-white dark:bg-gray-800 p-2 rounded-xl border border-gray-200 dark:border-gray-700 text-indigo-600 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all shadow-sm group/btn">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                </button>
+
+                                                <button type="button" onclick="confirmDelete('{{ $visitor->id }}', '{{ $visitor->nama_lengkap }}')"
+                                                    class="bg-white dark:bg-gray-800 p-2 rounded-xl border border-gray-200 dark:border-gray-700 text-rose-500 hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-all shadow-sm">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                                
+                                                <form id="deleteForm-{{ $visitor->id }}" action="{{ route('admin.visitors.destroy', $visitor->id) }}" method="POST" class="hidden">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                </form>
+                                            </div>
+                                        </td>d>
                                     </tr>
                                     @empty
                                     <tr>
@@ -294,9 +321,70 @@
 
     </div>
 
-    <!-- Charts Support -->
+    <!-- Charts & UI Support -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // SweetAlert Delete Confirmations
+        function confirmDelete(id, name) {
+            Swal.fire({
+                title: 'Hapus Data?',
+                text: `Kunjungan dari ${name} akan dihapus permanen.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                background: document.documentElement.classList.contains('dark') ? '#1f2937' : '#ffffff',
+                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#111827',
+                borderRadius: '1.5rem'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`deleteForm-${id}`).submit();
+                }
+            })
+        }
+
+        function confirmDeleteAll() {
+            Swal.fire({
+                title: 'Bersihkan Database?',
+                text: 'Semua data kunjungan akan dihapus. Ketik "HAPUS" untuk konfirmasi:',
+                input: 'text',
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Hapus Segalanya',
+                cancelButtonText: 'Batal',
+                background: document.documentElement.classList.contains('dark') ? '#1f2937' : '#ffffff',
+                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#111827',
+                borderRadius: '1.5rem',
+                inputValidator: (value) => {
+                    if (value !== 'HAPUS') {
+                        return 'Ketik "HAPUS" secara tepat!'
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('deleteAllForm').submit();
+                }
+            })
+        }
+
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                timer: 3000,
+                showConfirmButton: false,
+                background: document.documentElement.classList.contains('dark') ? '#1f2937' : '#ffffff',
+                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#111827',
+                borderRadius: '1.5rem'
+            });
+        @endif
+
         document.addEventListener('DOMContentLoaded', function() {
             // Main Trend Chart
             const ctx = document.getElementById('visitorChart').getContext('2d');

@@ -105,4 +105,36 @@ class VisitorController extends Controller
 
         return view('admin.visitors.index', compact('visitors', 'chartData', 'stats', 'range'));
     }
+    /**
+     * Remove the specified visitor from storage.
+     */
+    public function destroy(Visitor $visitor)
+    {
+        // Delete image file if exists
+        if ($visitor->foto_path) {
+            Storage::disk('public')->delete($visitor->foto_path);
+        }
+        
+        $visitor->delete();
+        return back()->with('success', 'Data kunjungan berhasil dihapus.');
+    }
+
+    /**
+     * Remove all visitors from storage.
+     */
+    public function destroyAll()
+    {
+        // Delete all images first
+        $visitors = Visitor::all();
+        foreach ($visitors as $visitor) {
+            if ($visitor->foto_path) {
+                Storage::disk('public')->delete($visitor->foto_path);
+            }
+        }
+        
+        // Clear table
+        Visitor::query()->delete();
+        
+        return back()->with('success', 'Semua data kunjungan telah dibersihkan.');
+    }
 }
