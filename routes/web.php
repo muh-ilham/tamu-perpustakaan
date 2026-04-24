@@ -26,3 +26,32 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Temporary route for setup on cPanel without Terminal
+Route::get('/install', function () {
+    try {
+        // Generate App Key if not exists
+        \Illuminate\Support\Facades\Artisan::call('key:generate', ['--force' => true]);
+        
+        // Cache Configuration
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+
+        // Migrate and seed
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        
+        // Storage link
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Database Migrated, Key Generated, and Storage Linked successfully!',
+            'details' => \Illuminate\Support\Facades\Artisan::output()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
