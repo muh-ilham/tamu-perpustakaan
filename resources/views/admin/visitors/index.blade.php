@@ -121,9 +121,30 @@
 
                     <!-- Modern Table -->
                     <div class="bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden px-8 py-2">
-                        <div class="py-6 flex items-center justify-between">
-                            <h3 class="text-lg font-black dark:text-white">Log Terbaru</h3>
-                            <div class="text-xs text-gray-400 font-medium">Halaman {{ $visitors->currentPage() }} dari {{ $visitors->lastPage() }}</div>
+                        <div class="py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="text-lg font-black dark:text-white">Log Terbaru</h3>
+                                <p class="text-[10px] text-gray-400 font-medium">Halaman {{ $visitors->currentPage() }} dari {{ $visitors->lastPage() }} (Total {{ $visitors->total() }} Data)</p>
+                            </div>
+                            
+                            <form action="{{ route('admin.visitors.index') }}" method="GET" class="relative group">
+                                <input type="hidden" name="range" value="{{ $range }}">
+                                <input type="text" name="search" value="{{ $search }}" 
+                                    placeholder="Cari nama, pangkat..." 
+                                    class="w-full md:w-64 pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none dark:text-white">
+                                <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                                @if($search)
+                                    <a href="{{ route('admin.visitors.index', ['range' => $range]) }}" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-rose-500">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </a>
+                                @endif
+                            </form>
                         </div>
                         
                         <div class="overflow-x-auto pb-4">
@@ -184,7 +205,7 @@
                                                     @method('DELETE')
                                                 </form>
                                             </div>
-                                        </td>d>
+                                        </td>
                                     </tr>
                                     @empty
                                     <tr>
@@ -196,7 +217,7 @@
                         </div>
 
                         <div class="py-6 border-t border-gray-100 dark:border-gray-700">
-                            {{ $visitors->appends(['range' => $range])->links() }}
+                            {{ $visitors->appends(['range' => $range, 'search' => $search])->links() }}
                         </div>
                     </div>
                 </div>

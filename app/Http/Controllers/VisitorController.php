@@ -84,26 +84,42 @@ class VisitorController extends Controller
      */
     public function adminIndex(Request $request)
     {
-        $range = $request->query('range', '7'); // default 7 days
-        $days = (int)$range;
+        $range = $request->get('range', '7');
+        $search = $request->get('search');
+        $days = (int) $range;
 
-        $visitors = Visitor::latest()->paginate(10);
+        $query = Visitor::query();
         
-        // Stats
+        // Advanced Search Filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                  ->orWhere('pangkat', 'like', "%{$search}%")
+                  ->orWhere('satuan', 'like', "%{$search}%")
+                  ->orWhere('judul_buku', 'like', "%{$search}%");
+            });
+        }
+
+        // Time Range Filter
+        $query->where('created_at', '>=', now()->subDays($days));
+
+        $visitors = $query->orderBy('created_at', 'desc')->paginate(10);
+        
+        // Stats Overview
         $stats = [
             'total' => Visitor::count(),
             'today' => Visitor::whereDate('created_at', today())->count(),
             'this_period' => Visitor::where('created_at', '>=', now()->subDays($days))->count(),
         ];
 
-        // Data for chart
+        // Chart Data
         $chartData = Visitor::selectRaw('DATE(created_at) as date, COUNT(*) as count')
             ->where('created_at', '>=', now()->subDays($days))
             ->groupBy('date')
             ->orderBy('date')
             ->get();
 
-        return view('admin.visitors.index', compact('visitors', 'chartData', 'stats', 'range'));
+        return view('admin.visitors.index', compact('visitors', 'chartData', 'stats', 'range', 'search'));
     }
     /**
      * Remove the specified visitor from storage.
